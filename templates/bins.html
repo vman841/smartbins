@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% set active_tab = "bins" %}
+{% block content %}
+<div class="row g-4">
+
+  <!-- Add bin -->
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-semibold">➕ Add New Bin</div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('add_bin') }}" class="d-flex gap-2">
+          <input type="text" name="bin_name" class="form-control"
+                 placeholder="Bin name…" required>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rename bin -->
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-semibold">✏️ Rename Bin</div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('rename_bin') }}" class="d-flex flex-column gap-2">
+          <select name="bin_id" class="form-select" required>
+            <option value="">Select bin…</option>
+            {% for b in bins %}
+            <option value="{{ b.bin_id }}">{{ b.bin_name }}</option>
+            {% endfor %}
+          </select>
+          <div class="d-flex gap-2">
+            <input type="text" name="new_name" class="form-control"
+                   placeholder="New name…" required>
+            <button type="submit" class="btn btn-warning">Rename</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete bin -->
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-semibold">🗑️ Delete Bin</div>
+      <div class="card-body">
+        <form method="POST" class="d-flex gap-2"
+              onsubmit="return confirm('Delete bin and ALL its items?')">
+          <select name="bin_id" class="form-select" required id="del_bin_sel">
+            <option value="">Select bin…</option>
+            {% for b in bins %}
+            <option value="{{ b.bin_id }}">{{ b.bin_name }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-danger"
+                  formaction="{{ url_for('delete_bin', bin_id=0) }}"
+                  id="del_bin_btn">Delete</button>
+        </form>
+        <script>
+          document.querySelector('form [name="bin_id"]').addEventListener('change', function() {
+            document.getElementById('del_bin_btn')
+              .formAction = '/bins/delete/' + this.value;
+          });
+        </script>
+        <small class="text-danger mt-1 d-block">⚠️ Cascades to all items in bin.</small>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bins table -->
+<div class="card shadow-sm mt-4">
+  <div class="card-header fw-semibold">🗂️ All Bins ({{ bins|length }})</div>
+  <div class="card-body p-0">
+    {% if bins %}
+    <table class="table table-hover align-middle mb-0">
+      <thead><tr><th>ID</th><th>Bin Name</th></tr></thead>
+      <tbody>
+        {% for b in bins %}
+        <tr>
+          <td class="text-muted small">{{ b.bin_id }}</td>
+          <td class="fw-semibold">{{ b.bin_name }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted text-center py-4 mb-0">No bins yet. Add one above.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
